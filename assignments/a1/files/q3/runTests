@@ -1,0 +1,28 @@
+#!/bin/bash
+if [ "$#" -ne 2 ]; then
+    echo "Usage: $0 <cmdtorun> <testsetfile>" >&2
+else
+    for stem in $(cat "$2"); do
+        infile="${stem}.in"
+        outfile="${stem}.out"
+        argsfile="${stem}.args" #for .args file
+        if [ -f "$argsfile" ]; then
+            args=$(<"$argsfile")
+        else
+            args=""
+        fi
+        #Every test case redirects input from stem.in
+        #Passes command line arguments from the file stem.args to the command 
+        output=$("$1" $args < "$infile" 2>/dev/null)
+        compare=$(diff "$outfile" <(echo "$output"))
+        if [ $? -eq 0 ]; then
+            echo "Test ${stem} passed"
+        else
+            echo "Test ${stem} failed"
+            echo "Expected output: "
+            cat "$outfile"
+            echo "Actual output: "
+            echo "$output"
+        fi
+    done
+fi

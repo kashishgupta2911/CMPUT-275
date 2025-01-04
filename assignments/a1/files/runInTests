@@ -1,0 +1,20 @@
+#!/bin/bash
+if [ "$#" -ne 2 ]; then
+    echo "Usage: $0 <cmdtorun> <testsetfile>" >&2
+else
+    for stem in $(cat "$2"); do
+        infile="${stem}.in"
+        outfile="${stem}.out"
+        output=$("$1" < "$infile" 2>/dev/null) #office hours on 31/01
+        compare=$(diff "$outfile" <(echo "$output")) #office hours on 31/01
+        if [ $? -eq 0 ]; then
+            echo "Test ${stem} passed"
+        else
+            echo "Test ${stem} failed"
+            echo "Expected output: "
+            cat "$outfile"
+            echo "Actual output: "
+            echo "$output"
+        fi
+    done
+fi
